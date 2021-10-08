@@ -1,0 +1,3 @@
+#SampleID	forward-absolute-filepath	reverse-absolute-filepath
+Podsol-O	/data/QTDIN039AX_20190807174849__TNamp_15_S79_R1_001.fastq.gz	/data/QTDIN039AX_20190807174849__TNamp_15_S79_R2_001.fastq.gz
+Podsol-A	/data/QTDIN040A2_20190807174849__TNamp_16_S80_R1_001.fastq.gz	/data/QTDIN040A2_20190807174849__TNamp_16_S80_R2_001.fastq.gz

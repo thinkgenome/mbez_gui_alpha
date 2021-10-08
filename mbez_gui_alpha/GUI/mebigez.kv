@@ -1,0 +1,3646 @@
+#:import hex kivy.utils.get_color_from_hex
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import Factory kivy.factory.Factory
+#:import NavigationDrawer kivy.garden.navigationdrawer
+#: import Svg kivy.graphics.svg
+#: import Image kivy.uix.image
+#: import FileChooser kivy.uix.filechooser
+#: import os os
+
+
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# General
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+# Redefinition of ActionToggleButton to avoid black labels on binary versions
+# used to lose black part on the right in ActionBar
+<ActionButton,-ActionToggleButton>:
+    size_hint_x: None if not root.inside_group else 1
+    width: [dp(48) if (root.icon and not root.inside_group) else max(dp(48), (self.texture_size[0] + dp(32))), self.size_hint_x][0]
+    #color: self.color[:3] + [0 if (root.icon and not root.inside_group) else 1]
+
+<MainHeader@ActionToggleButton>:
+    size_hint_x: 1
+    font_size: 20
+    bold: True
+    mipmap: False
+    disabled_color: (1, 1, 1, 1)
+
+
+<Button>:
+    font_size: 30
+    background_normal: ''
+    background_color: hex('#191970') # midnightblue
+
+<SixteensButton@Button>:
+    font_size: 30
+    background_normal: ''
+    background_color: hex('#B0171F')
+
+<BGCButton@Button>:
+    font_size: 30
+    background_normal: ''
+    background_color: hex('#8B5A00')
+
+<ShotgunButton@Button>:
+    font_size: 30
+    background_normal: ''
+    background_color: hex('#8E8E38')
+
+<CustomButton@Button>:
+    font_size: 30
+    background_normal: ''
+    background_color: hex('#556B2F')
+
+<Screen>:
+    canvas:
+        Color:
+            rgba: hex('#292421') #ivoryblack
+        Rectangle:
+            size: self.size
+
+<HelpPopup@Popup>:
+    title: 'Help'
+    size_hint: None, None
+    size: 400, 400
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Fill in text!'
+        Button:
+            text: 'Close'
+            on_release: root.dismiss()
+
+
+
+
+
+<DownloadPopup@Popup>:
+    title: 'Download'
+    size_hint: None, None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        Button:
+            text: 'Download .png'
+            on_release: Factory.ExportFiles().open()
+        Button:
+            text: 'Download .pdf'
+            on_release: Factory.ExportFiles().open()
+        Button:
+            text: 'Download .csv'
+            #on_release:
+        Button:
+            text: 'Download Result file (.qzv)'
+            on_release: Factory.ExportFiles().open()
+
+<PngChooserPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 500, 700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            text: 'Open demultiplex-summary'
+            #halign: 'center'
+            #font_size: 20
+            #size_hint: .1, .1
+            #pos_hint: {'right': .1, 'top': .8}
+            on_release: app.pngpopup_demultiplex_summary()
+        Button:
+            text: 'Open sample-frequencies'
+            on_release: app.pngpopup_sample_frequencies()
+        Button:
+            text: 'Open feature-frequencies'
+            on_release: app.pngpopup_feature_frequencies()
+        Button:
+            text: 'Open Cambisol-boxplots'
+            on_release: app.pngpopup_cambisolboxplots()
+        Button:
+            text: 'Open Podsol-boxplots'
+            on_release: app.pngpopup_podsolboxplots()
+        Button:
+            text: 'Open Gley-boxplots'
+            on_release: app.pngpopup_gleyboxplots()
+        Button:
+            text: 'Open A-boxplots'
+            on_release: app.pngpopup_aboxplots()
+        Button:
+            text: 'Open B-boxplots'
+            on_release: app.pngpopup_bboxplots()
+        Button:
+            text: 'Open O-boxplots'
+            on_release: app.pngpopup_oboxplots()
+
+<PdfChooserPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 500, 700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            text: 'Open demultiplex-summary.pdf'
+            #halign: 'center'
+            #font_size: 20
+            #size_hint: .1, .1
+            #pos_hint: {'right': .1, 'top': .8}
+            on_release: app.show_demultiplex_pdf()
+        Button:
+            text: 'Open sample-frequencies.pdf '
+            on_release: app.show_samplefreq_pdf()
+        Button:
+            text: 'Open feature-frequencies.pdf '
+            on_release: app.show_featurefreq_pdf()
+        Button:
+            text: 'Open Cambisol-boxplots.pdf '
+            on_release: app.show_cambisolboxplot_pdf()
+        Button:
+            text: 'Open Podsol-boxplots.pdf '
+            on_release: app.show_podsolboxplot_pdf()
+        Button:
+            text: 'Open Gley-boxplots.pdf '
+            on_release: app.show_gleyboxplot_pdf()
+        Button:
+            text: 'Open A-boxplots.pdf '
+            on_release: app.show_aboxplot_pdf()
+        Button:
+            text: 'Open B-boxplots.pdf '
+            on_release: app.show_bboxplot_pdf()
+        Button:
+            text: 'Open O-boxplots.pdf '
+            on_release: app.show_oboxplot_pdf()
+
+<HtmlChooserPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 700, 1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            id: plotview
+            text: 'Open Quality Plot'
+            #halign: 'center'
+            #font_size: 20
+            #size_hint: .1, .1
+            #pos_hint: {'right': .1, 'top': .7}
+            on_release: app.open_html_browser_plot()
+        Button:
+            id: ovview
+            text: 'Open Overview'
+            on_release: app.open_html_browser_overview()
+        Button:
+            text: 'Open paired-end-demux Index'
+            on_release: app.open_html_pairedendindex()
+        Button:
+            id: index
+            text: 'Open rep-seqs Index'
+            on_release: app.open_html_repseqsindex()
+        Button:
+            text: 'Open table Index'
+            on_release: app.open_html_tableindex()
+        Button:
+            text: 'Open Feature-Frequency-Detail'
+            on_release: app.open_html_featurefreqdetail()
+        Button:
+            text: 'Open Sample-Frequency-Detail'
+            on_release: app.open_html_samplefreqdetail()
+        Button:
+            text: 'Open Alpha-Rarefunction Index'
+            on_release: app.open_html_alphaindex()
+        Button:
+            text: 'Open taxa-bar-plots Index'
+            on_release: app.open_html_taxabarindex()
+        Button:
+            text: 'Open taxonomy Index'
+            on_release: app.open_html_taxonomyindex()
+        Button:
+            text: 'Open bray_curtis_emperor Emperor'
+            on_release: app.open_html_braycurtisemperor()
+        Button:
+            text: 'Open bray_curtis_emperor Index'
+            on_release: app.open_html_braycurtisindex()
+        Button:
+            text: 'Open evenness-group-significance Index'
+            on_release: app.open_html_evennessgroupindex()
+        Button:
+            text: 'Open faith-pd-group-significance Index'
+            on_release: app.open_html_faithpdindex()
+        Button:
+            text: 'Open jaccard_emperor Index'
+            on_release: app.open_html_jaccardindex()
+        Button:
+            text: 'Open unweighted_unifrac_emperor Index'
+            on_release: app.open_html_unweightedindex()
+        Button:
+            text: 'Open unweighted-unifrac-site-significance Index'
+            on_release: app.open_html_unweightedsiteindex()
+        Button:
+            text: 'Open unweighted-unifrac-layer-significance Index'
+            on_release: app.open_html_unweightedlayerindex()
+        Button:
+            text: 'Open weighted_unifrac_emperor Index'
+            on_release: app.open_html_weightedindex()
+        Button:
+            text: 'Open denoising-stats Index'
+            on_release: app.open_html_denoisingindex()
+
+
+
+
+
+
+<CsvChooserPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 700, 1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            id: "cvsbutton"
+            text: 'open reverse-seven-summaries'
+            halign: 'center'
+            #size_hint: .1, .1
+            #pos_hint: {'right': .1, 'top': .7}
+            on_release: app.open_csv_reverseseven()
+        Button:
+            text: 'Open forward-seven-summaries'
+            on_release: app.open_csv_fowardseven()
+        Button:
+            text: 'Open per-sample-fastq-counts'
+            on_release: app.open_csv_persamplefastq()
+        Button:
+            text: 'Open sample-frequency-detail'
+            on_release: app.open_csv_samplefreqdetail()
+        Button:
+            text: 'Open feature-frequency-detail'
+            on_release: app.open_csv_featurefreqdetail()
+        Button:
+            text: 'Open faith_pd'
+            on_release: app.open_csv_faithpd()
+        Button:
+            text: 'Open observed_otus'
+            on_release: app.open_csv_observedotus()
+        Button:
+            text: 'Open shannon'
+            on_release: app.open_csv_shannon()
+        Button:
+            text: 'Open taxa-bar-plots'
+            on_release: Factory.TaxaBarChooserPopup().open()
+        Button:
+            text: 'Open evenness-kruskal-wallis-pairwise-Layer'
+            on_release: app.open_csv_evennesskruskallayer()
+        Button:
+            text: 'Open evenness-kruskal-wallis-pairwise-Site'
+            on_release: app.open_csv_evennesskruskalsite()
+        Button:
+            text: 'Open faith-pd-kruskal-wallis-pairwise-Layer'
+            on_release: app.open_csv_faithpdskruskallayer()
+        Button:
+            text: 'Open faith-pd-kruskal-wallis-pairwise-Site'
+            on_release: app.open_csv_faithpdkruskalsite()
+        Button:
+            text: 'Open site permanova-pairwise'
+            on_release: app.open_csv_unweightedsitepermanova()
+        Button:
+            text: 'Open layer permanova-pairwise'
+            on_release: app.open_csv_unweightedlayerpermanova()
+
+<TsvChooserPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 700, 1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            id: "cvsbutton"
+            text: 'open rep-seqs seven-number-summaries'
+            halign: 'center'
+            #size_hint: .1, .1
+            #pos_hint: {'right': .1, 'top': .7}
+            on_release: app.open_tsv_seven_number()
+        Button:
+            text: 'Open rep-seqs decriptive stats'
+            on_release: app.open_tsv_descriptive_stats()
+        Button:
+            text: 'Open taxa-bar-plots metadata'
+            on_release: app.open_tsv_taxa_metadata()
+        Button:
+            text: 'Open bray-curtis-emperor metadata'
+            on_release: app.open_tsv_braycurtis_metadata()
+        Button:
+            text: 'Open Open evennes-group metadata'
+            on_release: app.open_tsv_evenness_metadata()
+        Button:
+            text: 'Open faith_pd medatadata'
+            on_release: app.open_tsv_faith_metadata()
+        Button:
+            text: 'Open jaccard-emperor metadata'
+            on_release: app.open_tsv_jaccard_metadata()
+        Button:
+            text: 'Open unweighted unifrac layer significance metadata'
+            on_release: app.open_tsv_unifraclayer_metadata()
+        Button:
+            text: 'Open eunweighted unifrac site significance metadata'
+            on_release: app.open_tsv_unifracsite_metadata()
+        Button:
+            text: 'Open unweighted unifrac emperor metadata'
+            on_release: app.open_tsv_unifracemperor_metadata()
+        Button:
+            text: 'Open weighted unifrac emperor metadata'
+            on_release: app.open_tsv_weightedunifracemperor_metadata()
+        Button:
+            text: 'Open denoising-stats metadata'
+            on_release: app.open_tsv_denloising_metadata()
+
+
+<TaxaBarChooserPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 500, 700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            text: 'Open Level-1'
+            on_release: app.open_csv_taxabarlevels_1()
+        Button:
+            text: 'Open Level-2'
+            on_release: app.open_csv_taxabarlevels_2()
+        Button:
+            text: 'Open Level-3'
+            on_release: app.open_csv_taxabarlevels_3()
+        Button:
+            text: 'Open Level-4'
+            on_release: app.open_csv_taxabarlevels_4()
+        Button:
+            text: 'Open Level-5'
+            on_release: app.open_csv_taxabarlevels_5()
+        Button:
+            text: 'Open Level-6'
+            on_release: app.open_csv_taxabarlevels_6()
+        Button:
+            text: 'Open Level-7'
+            on_release: app.open_csv_taxabarlevels_7()
+        Button:
+            text: 'Open Level-8'
+            on_release: app.open_csv_taxabarlevels_8()
+        Button:
+            text: 'Open Level-9'
+            on_release: app.open_csv_taxabarlevels_9()
+        Button:
+            text: 'Open Level-10'
+            on_release: app.open_csv_taxabarlevels_10()
+        Button:
+            text: 'Open Level-11'
+            on_release: app.open_csv_taxabarlevels_11()
+        Button:
+            text: 'Open Level-12'
+            on_release: app.open_csv_taxabarlevels_12()
+        Button:
+            text: 'Open Level-13'
+            on_release: app.open_csv_taxabarlevels_13()
+        Button:
+            text: 'Open Level-14'
+            on_release: app.open_csv_taxabarlevels_14()
+        Button:
+            text: 'Open Level-15'
+            on_release: app.open_csv_taxabarlevels_15()
+
+
+
+
+<PngExporterPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            text: 'Open demultiplex-summary'
+            #halign: 'center'
+            #font_size: 20
+            #size_hint: .1, .1
+            #pos_hint: {'right': .1, 'top': .8}
+            on_release: app.move_demultiplexsummary_png(exportchooser.path)
+        Button:
+            text: 'Open sample-frequencies'
+            on_release: app.move_samplefrequencies_png()
+        Button:
+            text: 'Open feature-frequencies'
+            on_release: app.move_featurefrequencies_png()
+
+
+
+<AmpTsvPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 500, 700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            text: 'Open Nr1 AMP-binding_model_div_est'
+            #text: '' if app.namer1 is None else 'Open %s AMP-binding_model_div_est' % app.namer1
+            on_release: app.open_tsv_nr1_bindingmodel()
+        Button:
+            text: 'Open Nr1 AMP-binding_cluster2abund'
+            on_release: app.open_tsv_nr1_bindingcluster()
+        Button:
+            text: 'Open Nr1 AMP-binding_summary_model_div_est'
+            on_release: app.open_tsv_nr1_bindingsummary()
+        Button:
+            text: 'Open Nr2 AMP-binding_model_div_est'
+            on_release: app.open_tsv_nr2_bindingmodel()
+        Button:
+            text: 'Open Nr2 AMP-binding_cluster2abund'
+            on_release: app.open_tsv_nr2_bindingcluster()
+        Button:
+            text: 'Open Nr2 AMP-binding_summary_model_div_est'
+            on_release: app.open_tsv_nr2_bindingsummary()
+        Button:
+            text: 'Open Out AMP-binding_model_div_est'
+            on_release: app.open_tsv_out_bindingmodel()
+        Button:
+            text: 'Open Out AMP-binding_cluster2abund'
+            on_release: app.open_tsv_out_bindingcluster()
+        Button:
+            text: 'Open Out AMP-binding_summary_model_div_est'
+            on_release: app.open_tsv_out_bindingsummary()
+        Button:
+            text: 'Open Out AMP-binding_summary_model_div_est'
+            on_release: app.open_tsv_out_rarediv()
+        Button:
+            text: 'Open Out AMP-binding_rare_div_est'
+            on_release: app.open_tsv_out_raredivsummary()
+        Button:
+            text: 'Open Out abund2clust_clean'
+            on_release: app.open_tsv_out_abundclean()
+
+
+<AmpPdfPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 500, 700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            text: 'Open AMP-binding_rare_div_est'
+            on_release: app.show_raredivest_pdf()
+        Button:
+            text: 'Open AMP-binding_model_div_est'
+            on_release: app.show_bindingmodel_pdf()
+        Button:
+            text: 'Open Nr1 AMP-binding_placements_tree'
+            on_release: app.show_nr1_placementstree_pdf()
+        Button:
+            text: 'Open Nr1 AMP-binding_violin_div_est'
+            on_release: app.show_nr1_violin_pdf()
+        Button:
+            text: 'Open Nr2 AMP-binding_placements_tree'
+            on_release: app.show_nr2_placementstree_pdf()
+        Button:
+            text: 'Open Nr2 AMP-binding_violin_div_est'
+            on_release: app.show_nr2_violin_pdf()
+        Button:
+            text: 'Open Out AMP-binding_placements_tree'
+            on_release: app.show_out_placementstree_pdf()
+
+
+
+<AmpCsvPopup@Popup>:
+    title: 'Choose File'
+    size_hint: None, None
+    size: 500, 700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        spacing: 5
+        orientation: 'vertical'
+        font_size: 20
+        Button:
+            text: 'Open Nr1 AMP-binding_query_info'
+            on_release: app.open_csv_nr1_bindingquery()
+        Button:
+            text: 'Open Nr2 AMP-binding_query_info'
+            on_release: app.open_csv_nr2_bindingquery()
+        Button:
+            text: 'Open Out AMP-binding_model_div_est'
+            on_release: app.open_csv_out_bindingquery()
+
+
+<AnalysisPopup@Popup>:
+    title: 'MeBigEasy'
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Analysis is running,\n current state in Side Bar'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 5
+            Button:
+                text: 'Close'
+                on_release: root.dismiss()
+            Button:
+                text: 'View log'
+                on_release: Factory.SixteenslogPopup().open()
+                on_release: root.dismiss()
+
+
+
+
+
+
+
+<ProbarPopup>:
+    title: 'MeBigEasy'
+    pop_up_text: _pop_up_text
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: _pop_up_text
+            text: ''
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: root.dismiss()
+
+<NewPipelinenamePopup>:
+    title: 'MeBigEasy'
+    newpipe_text: _newpipe_text
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: _newpipe_text
+            text: ''
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: Factory.PipelinenamePopup().open()
+            on_release: root.dismiss()
+
+
+<ProjectnamePopup>:
+    project_name_text_input: project_name
+    title: 'Select Job-Name (no space, no ".")'
+    size_hint: None, None
+    size: 500, 300
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 7
+        TextInput:
+            id: project_name
+            background_color: hex('#F2F2F2') # gray 95
+            multiline: False
+            size_hint: 1, .5
+            focus: True
+            on_text_validate: app.get_projectdisplay()
+            on_text_validate: root.get_projectdisplay()
+            #on_text_validate: Factory.ImportFiles().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+            on_text_validate: root.get_projectname()
+            on_text_validate: root.dismiss()
+        BoxLayout:
+            spacing: 5
+            orientation: 'horizontal'
+            Button:
+                text: 'Choose'
+                on_release: app.get_projectdisplay()
+                on_release: root.get_projectdisplay()
+                #on_release: Factory.ImportFiles().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+                on_release: root.get_projectname()
+                on_release: root.dismiss()
+            Button:
+                text: 'Close'
+                on_release: root.dismiss()
+
+<ProjectnamePopupResult>:
+    project_name_text_input: project_name
+    title: 'Select Job-Name (no space, no ".")'
+    size_hint: None, None
+    size: 500, 300
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 7
+        TextInput:
+            id: project_name
+            background_color: hex('#F2F2F2') # gray 95
+            multiline: False
+            size_hint: 1, .5
+            focus: True
+            on_text_validate: Factory.ImportResultsSixteens().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+            on_text_validate: root.get_projectname()
+            on_text_validate: root.dismiss()
+        BoxLayout:
+            spacing: 5
+            orientation: 'horizontal'
+            Button:
+                text: 'Choose'
+                on_release: Factory.ImportFiles().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+                on_release: root.get_projectname()
+                on_release: root.dismiss()
+            Button:
+                text: 'Close'
+                on_release: root.dismiss()
+
+
+
+
+<ProjectnamePopupSixteens>:
+    project_name_text_input: project_name
+    title: 'Select Job-Name (no space, no ".")'
+    size_hint: None, None
+    size: 500, 300
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 7
+        TextInput:
+            id: project_name
+            background_color: hex('#F2F2F2') # gray 95
+            multiline: False
+            size_hint: 1, .5
+            focus: True
+            #on_text_validate: Factory.ImportFiles().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+            on_text_validate: Factory.ChooseParametersPopup().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+            on_text_validate: root.get_projectname()
+            on_text_validate: root.dismiss()
+        BoxLayout:
+            spacing: 5
+            orientation: 'horizontal'
+            Button:
+                text: 'Choose'
+                #on_release: Factory.ImportFiles().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+                on_release: Factory.ChooseParametersPopup().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+                on_release: root.get_projectname()
+                on_release: root.dismiss()
+            Button:
+                text: 'Close'
+                on_release: root.dismiss()
+
+
+<PipelinenamePopup>:
+    pipeline_name_text_input: pipeline_name
+    title: 'Select Project Name (no space, no ".")'
+    size_hint: None, None
+    size: 500, 300
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 7
+        TextInput:
+            id: pipeline_name
+            background_color: hex('#F2F2F2') # gray 95
+            multiline: False
+            size_hint: 1, .5
+            focus: True
+            #on_text_validate: if root.check_pipelinename() is True and os.path.getsize(os.path.abspath('pipelinename.txt')) > 0: root.get_pipelinename()
+            #on_text_validate: if root.check_pipelinename is False: Factory.NewPipelinenamePopup().open()
+            #on_text_validate: if not os.path.getsize(os.path.abspath('pipelinename.txt')) > 0: Factory.NoPipelinenamePopup().open()
+            on_text_validate: app.get_pipelinedisplay()
+            on_text_validate: root.get_pipelinedisplay()
+            on_text_validate: root.get_pipelinename() # gets called first, dont ask me why
+            on_text_validate: root.dismiss()
+        BoxLayout:
+            spacing: 5
+            orientation: 'horizontal'
+            Button:
+                text: 'Choose'
+                #on_release: if root.check_pipelinename() is True and os.path.getsize(os.path.abspath('pipelinename.txt')) > 0: root.get_pipelinename()
+                #on_release: if root.check_pipelinename is False: Factory.NewPipelinenamePopup().open()
+                #on_release: if not os.path.getsize(os.path.abspath('pipelinename.txt')) > 0: Factory.NoPipelinenamePopup().open()
+                on_release: root.get_pipelinename()
+                on_release: root.dismiss()
+            Button:
+                text: 'Close'
+                on_release: root.dismiss()
+
+<ProjectnamePopupShotgun>:
+    project_name_text_input: project_name
+    title: 'Select Project Name (no space, no ".")'
+    size_hint: None, None
+    size: 500, 300
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 7
+        TextInput:
+            id: project_name
+            background_color: hex('#F2F2F2') # gray 95
+            multiline: False
+            size_hint: 1, .5
+            focus: True
+            on_text_validate: Factory.ImportFilesShotgun().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+            on_text_validate: root.get_projectname()
+            on_text_validate: root.dismiss()
+        BoxLayout:
+            spacing: 5
+            orientation: 'horizontal'
+            Button:
+                text: 'Choose'
+                on_release: Factory.ImportFilesShotgun().open() if os.path.getsize(os.path.abspath('projectname.txt')) > 0  else Factory.NoProjectnamePopup().open()
+                on_release: root.get_projectname()
+                on_release: root.dismiss()
+            Button:
+                text: 'Close'
+                on_release: root.dismiss()
+
+
+<NoProjectnamePopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Please Insert Jobname'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: Factory.ProjectnamePopup().open()
+            on_release: root.dismiss()
+
+<NoPipelinenamePopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Please Insert Projectname'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: root.dismiss()
+
+
+
+<NoDomainnamePopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Please Select Domain Name first'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: root.dismiss()
+
+<NoFilePopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Please Choose a File to Analyze'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: root.dismiss()
+
+<DeselectDomainnamePopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Unselect Domainname in BGC Analysis'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: root.dismiss()
+
+<ParameterPopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Select all Parameters first'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            text: 'Close'
+            on_release: root.dismiss()
+
+<SixteenslogPopup>:
+    title: 'Log'
+    size_hint: None, None
+    size: 1000,700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        ScrollView:
+            size_hint: 1, 1
+            do_scroll_x: False
+            do_scroll_y: True
+            effect_cls: "ScrollEffect"
+            scroll_type: ['bars']
+            Label:
+                size_hint_y: None
+                height: self.texture_size[1]
+                canvas.before:
+                    Color:
+                        rgba: hex('#3F3737')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                text: root.data
+                color: hex('#EE1818')
+                padding: 10, 10
+               # pos_hint: {'top': .8}
+                text_size: 450, None
+                shorten: False
+                halign: 'center'
+            #Label:
+             #   size_hint_y: None
+              #  height: self.texture_size[1]
+               # text_size: 450, None
+               # padding: 10, 10
+               # text: 'really some amazing text\n' * 100
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 5
+            #Button:
+             #   size_hint: .1, .6
+              #  text: 'Refresh'
+                #on_release: root.get_log(dt)
+            Button:
+                size_hint: .1, .6
+                text: 'Close'
+                on_release: root.dismiss()
+
+<HtmlPopup@Popup>:
+    title: ''
+    size_hint: None, None
+    size: 1000,2000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    auto_dismiss: False
+    ScrollView:
+        size_hint: 1, 1
+        do_scroll_x: False
+        do_scroll_y: True
+        effect_cls: "ScrollEffect"
+        scroll_type: ['bars']
+        Image:
+            source: app.previewsource
+            size_hint: None, None
+            keep_ratio: True
+            size: self.size
+
+
+
+
+
+            #    height: self.texture_size[1]
+             #   canvas.before:
+              #      Color:
+               #         rgba: hex('#3F3737')
+                #    Rectangle:
+                 #       size: self.size
+                  #      pos: self.pos
+                   #     source: app.previewsource
+                #text: root.data
+                #color: hex('#EE1818')
+               # padding: 10, 10
+               # pos_hint: {'top': .8}
+                #text_size: 450, None
+                #shorten: False
+                #halign: 'center'
+
+
+<ConfigurationPopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 300
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Would you like to configurate your run?'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 5
+            Button:
+                halign: 'center'
+                text: 'Edit \n Configurations'
+                on_release: app.open_config_file()
+            Button:
+                text: 'Submit'
+                #on_release: app.configurate_sixteens_shell() # here the function to change the shell and to tell 'Successfull' will be called
+                on_release: app.get_configuration_sixteens()
+                on_release: root.dismiss()
+
+<ChooseParametersPopup@Popup>:
+    title: ''
+    size_hint: None,None
+    size: 500, 700
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 30
+        Label:
+            text: 'Select the Parameters:'
+            text_size: 450, None
+            shorten: False
+            halign: 'center'
+        Button:
+            halign: 'center'
+            text: 'Manifest-File'
+            background_color: hex('#191970') if app.sixteensmanifestdisplay == '' else hex('#006400')
+            on_release: Factory.ImportManifestSixteens().open()
+        Button:
+            halign: 'center'
+            text: 'Metadata-File'
+            background_color: hex('#191970') if app.sixteensmetadatadisplay == '' else hex('#006400')
+            on_release: Factory.ImportMetadataSixteens().open()
+        Button:
+            halign: 'center'
+            text: 'Fastq-Files'
+            background_color: hex('#191970') if app.sixteensfastqdisplay == '' else hex('#006400')
+            on_release: Factory.ImportFastqSixteens().open()
+        Button:
+            text: 'Submit Selection'
+            size_hint: 1, .6
+            #on_release: app.configurate_sixteens_shell() # here the function to change the shell and to tell 'Successfull' will be called
+            on_release: root.dismiss()
+
+
+
+
+
+
+<BGCSpinner@Spinner>:
+    id: bgcspinner
+    background_color: hex('#8B5A00')
+    text: 'Domain Name'
+    values: 'AMP-binding', 'PKS-KS', 'Type-2 KS'
+    on_text: app.get_domainname(bgcspinner.text)
+    #on_text: self.value = 'Domain Name'
+
+<ShotgunSpinner@Spinner>:
+    id: shotgunspinner
+    background_color: hex('#8E8E38')
+    text: 'Domain Name'
+    values: 'AMP-binding', 'ATd', 'BLS', 'Condensation', 'DOIS', 'LANC_like', 'Lant_dehyd_C', 'Lant_dehyd_N', 'LipV', 'PF00067', 'PF00106', 'PF13575', 'PKS_AT', 'PKS_KS', 'TIGR03604', 'TIGR03605', 'TIGR03975', 'Terpene_synth_C', 'TunD', 'YcaO', 'fung_ggpps', 'fung_ggpps2', 'hglD', 'hglE', 'novI', 'novJ', 'phytoene_synt', 'salQ', 'spcDK_like_cou', 'spcDK_like_glyc', 't2clf', 't2ks', 't2ks2', 'tabtoxin'
+    on_text: app.get_domainname_shotgun(shotgunspinner.text)
+    #on_text: self.value = 'Domain Name'
+
+
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# ActionBar + ScreenManager + Navigationdrawer
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+BoxLayout:
+    orientation: 'vertical'
+    manager: screenmanager
+
+    ActionBar:
+        pos_hint: {'top':1}
+        size_hint_y: None
+        height: 90
+
+
+        ActionView:
+
+            ActionPrevious:
+                size_hint: None, None
+                width: 0
+                with_previous: False
+                app_icon: 'data/transparent.png'
+
+            ActionButton:
+                width: 120
+                background_normal: 'data/menu_bt.png'
+                background_down: 'data/menu_bt_bigger.png'
+                background_color: 1,1,1,1
+                on_release: navdrawer.toggle_state()
+
+            MainHeader: # is a button as well but set as mainheader in general to lose black label on right side
+                text: '16s' # will need to set background_normal, background_down to all mainheaders
+                background_normal: ''
+                background_down: ''
+                background_color: hex('#B0171F') # indianred
+                on_release: Factory.PipelinenamePopup().open()
+                on_release: screenmanager.current = 'sixteens'
+
+            MainHeader:
+                text: 'BGC Amplicon'
+                background_normal: ''
+                background_down: ''
+                background_color: hex('#8B5A00') # orange 4
+                on_release: Factory.PipelinenamePopup().open()
+                on_release: screenmanager.current = 'bgc'
+
+            MainHeader:
+                text: 'Shotgun Metagenome'
+                background_normal: ''
+                background_down: ''
+                background_color: hex('#8E8E38') # sgi olivedrab
+                on_release: Factory.PipelinenamePopup().open()
+                on_release: screenmanager.current = 'meta'
+            MainHeader:
+                text: 'Biosynthesis Potential'
+                background_normal: ''
+                background_down: ''
+                background_color: hex('#8B7355')  # burlywood 4
+                on_release: Factory.PipelinenamePopup().open()
+                on_release: screenmanager.current = 'bio'
+            MainHeader:
+                text: 'Custom Pipeline'
+                background_normal: ''
+                background_down: ''
+                background_color: hex('#556B2F')  # darkolivegreen
+                on_release: Factory.PipelinenamePopup().open()
+                on_release: screenmanager.current = 'custom'
+
+
+    NavigationDrawer:
+        id: navdrawer
+        anim_type: 'slide_above_simple'
+        FloatLayout:
+            canvas.before:
+                Color:
+                    rgba: hex('#292421')
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Label:
+                text: 'Running Tasks'
+                pos_hint: {'right': 1, 'top': 1}
+                size_hint: 1, .08
+                canvas.before:
+                    Color:
+                        rgba: hex('#211F1F')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''
+                pos_hint: {'right': 1, 'top': .92}
+                size_hint: 1, .005
+                canvas.before:
+                    Color:
+                        rgba: hex('#FFFFFF')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: '16s Analysis:'
+                font_size: 45
+                #pos_hint: {'right': .78, 'top': .9}
+                pos_hint: {'right': 0, 'top': 0} if app.sixteenschecker == 0 else {'right': .78, 'top': .9}
+                size_hint: 1, .08
+            Label:
+                pos_hint: {'right': 0, 'top': 0} if app.sixteenschecker == 0 else {'center_x': .3, 'top': .84}
+                size_hint: .5, .001
+                canvas.before:
+                    Color:
+                        rgba: hex('#FFFFFF')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                #halign: 'left'
+                halign: 'center'
+                valign: 'center'
+                text: app.sixteensstatus
+                color: hex('#DF1919') if app.sixteenschecker == 2 else hex('#EE1414')
+                pos_hint: {'right': 0, 'top': 0} if app.sixteenschecker == 0 else {'center_x': .5, 'top': .8}
+                size_hint: .75, .07
+                canvas.before:
+                    Color:
+                        rgba: hex('#FFFFFF')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: 'BGC Analysis:'
+                font_size: 45
+                pos_hint: {'right': 0, 'top': 0} if app.bgcchecker == 0 else {'right': .8, 'top': .7}
+                size_hint: 1, .08
+            Label:
+                pos_hint: {'right': 0, 'top': 0} if app.bgcchecker == 0 else {'center_x': .28, 'top': .64}
+                size_hint: .53, .001
+                canvas.before:
+                    Color:
+                        rgba: hex('#FFFFFF')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                #halign: 'left'
+                halign: 'center'
+                valign: 'center'
+                text: app.bgcstatus
+                color: hex('#DF1919') if app.bgcchecker == 1 else hex('#EE1414')
+                pos_hint: {'right': 0, 'top': 0} if app.bgcchecker == 0 else {'center_x': .5, 'top': .6}
+                size_hint: .75, .07
+                canvas.before:
+                    Color:
+                        rgba: hex('#FFFFFF')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: 'Shotgun Meta Analysis:'
+                font_size: 45
+                pos_hint: {'right': 0, 'top': 0} if app.shotgunchecker == 0 else {'right': .98, 'top': .5}
+                size_hint: 1, .08
+            Label:
+                halign: 'left'
+                halign: 'center'
+                valign: 'center'
+                text: app.shotgunstatus
+                color: hex('#DF1919') if app.shotgunchecker == 1 else hex('#EE1414')
+                pos_hint: {'right': 0, 'top': 0} if app.shotgunchecker == 0 else {'center_x': .5, 'top': .4}
+                size_hint: .75, .07
+                canvas.before:
+                    Color:
+                        rgba: hex('#FFFFFF')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                pos_hint: {'right': 0, 'top': 0} if app.shotgunchecker == 0 else {'right': .97, 'top': .44}
+                size_hint: .97, .001
+                canvas.before:
+                    Color:
+                        rgba: hex('#FFFFFF')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+         #   Label:
+          #      text: 'Bio Pot Analysis'
+           #     font_size: 45
+            #    pos_hint: {'right': .85, 'top': .3}
+             #   size_hint: 1, .08
+         #   Label:
+          #      pos_hint: {'center_x': .5, 'top': .24}
+           #     size_hint: .62, .001
+            #    canvas.before:
+             #       Color:
+              #          rgba: hex('#FFFFFF')
+               #     Rectangle:
+                #        size: self.size
+                 #       pos: self.pos
+        #    Label:
+         #       #halign: 'left'
+          #      halign: 'center'
+           #     valign: 'center'
+            #    text: app.sixteensstatus
+             #   color: hex('#DF1919') if app.sixteenschecker == 1 else hex('#000000')
+              #  pos_hint: {'center_x': .5, 'top': .2}
+               # size_hint: .75, .07
+                #canvas.before:
+                 #   Color:
+                  #      rgba: hex('#FFFFFF')
+                   # Rectangle:
+                    #    size: self.size
+                     #   pos: self.pos
+          #  Label:
+           #     halign: 'left'
+            #    text: ''
+             #   pos_hint: {'right': .7, 'top': .8}
+              #  size_hint: .9, .1
+            Button:
+                text: 'View Log'
+                pos_hint: {'right': .7, 'top': .1}
+                size_hint: .4, .1
+                on_release: if app.check_log_empty() is True: Factory.SixteenslogPopup().open()
+
+
+
+
+        ScreenManagement:
+            id: screenmanager
+            transition: NoTransition()
+            LandingPage:
+            Menu:
+            SixteenS:
+            BGCAmplicon:
+            ShotgunMetagenome:
+            BioPotential:
+            Manager:
+            ResultSixteenS:
+            #PngSixteenS:
+            #CsvSixteenS:
+            #HtmlSixteenS:
+            #PdfSixteenS:
+            ResultBGC:
+            ResultShotgun:
+            CustomPipeline:
+
+
+
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# MeBigEasy Screens
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+<LandingPage@Screen>:
+
+    name: 'landing'
+
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: hex('#292421')
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: "MeBigEasy \n - a bioinformatical tool to screen metagenomic data for new anti-infectives -"
+            halign: 'center'
+            valign: 'center'
+            #color: 0,0,0,0.9
+            font_size: 40
+            size_hint: 0.85, .2
+            pos_hint: {'center_x': .5, 'center_y': .6}
+            canvas.before:
+                Color:
+                    rgba: hex('#292929') # gray 16
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'center_x': .5, 'center_y': .7}
+            size_hint: .85, .002
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            size_hint: .85, .002
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'x': .075, 'y': .5}
+            size_hint: .002, .2
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'x': .925, 'y': .5}
+            size_hint: .002, .2
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'center_x': .5, 'center_y': .7}
+            size_hint: .85, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Button:
+            text: "16s rRNA"
+            pos_hint: {'right': .15, 'top': .3}
+            size_hint: .1, .1
+            halign: 'center'
+            on_release: root.manager.current = 'sixteens'
+            on_release: Factory.PipelinenamePopup().open()
+        Button:
+            text: "BGC \n Amplicon"
+            pos_hint: {'right': .35, 'top': .3}
+            size_hint: .12, .1
+            halign: 'center'
+            on_release: root.manager.current = 'bgc'
+            on_release: Factory.PipelinenamePopup().open()
+        Button:
+            text: "Shotgun \n Metagenome"
+            halign: 'center'
+            pos_hint: {'right': .55, 'top': .3}
+            size_hint: .12, .1
+            halign: 'center'
+            on_release: root.manager.current = 'meta'
+            on_release: Factory.PipelinenamePopup().open()
+        Button:
+            text: "Biosynthesis \n Potential"
+            pos_hint: {'right': .75, 'top': .3}
+            size_hint: .12, .1
+            halign: 'center'
+            #on_release: root.manager.current = 'bio'
+            #on_release: Factory.PipelinenamePopup().open()
+            on_release: app.checker()
+        Button:
+            text: "Custom Pipeline"
+            pos_hint: {'right': .95, 'top': .3}
+            size_hint: .12, .1
+            halign: 'center'
+            on_release: root.manager.current = 'custom'
+            on_release: Factory.PipelinenamePopup().open()
+
+
+<Menu@Screen>:
+
+    name: 'menu'
+
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 0.1, 'top': 1}
+            size_hint: .3, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#1E1E1E')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+        Button:
+            text: 'Import \n /Export Data'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .8}
+            on_release: root.manager.current = 'menu'
+        Button:
+            text: 'Project \n Management'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .7}
+            halign: "left"
+            valign: "center"
+            on_release: root.manager.current = 'manager'
+        Button:
+            text: 'Landing \n   Page'
+            font_size: 40
+            pos_hint: {'right': 1, 'top': 0.1}
+            size_hint: .15, .1
+            on_release: root.manager.current = 'landing'
+        Button:
+            text: 'Import files'
+            font_size: 70
+            size_hint: .18, .1
+            pos_hint: {'center_x': .5, 'center_y': .8}
+            #on_release: root.manager.current = 'importfiles'
+        Button:
+            text: 'Export files'
+            font_size: 70
+            size_hint: .18, .1
+            pos_hint: {'center_x': .5, 'center_y': .2}
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# SixteenS Screens
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+<SixteenS@Screen>:
+
+    name: 'sixteens'
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#292421')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: '16s based \n Community Profiling \n Qiime2'
+            font_size: 60
+            halign: 'center'
+            pos_hint: {'center_x': .5, 'center_y': .9}
+            size_hint: 0.85, .2
+
+        Button:
+            text: 'Cancel'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.manager.current = 'landing'
+     #   SixteensButton:
+      #      id: prosix
+       #     text: 'New Job'
+        #    pos_hint: {'center_x': .12, 'center_y': .65}
+         #   size_hint: .14, .1
+          #  #on_release: Factory.ProjectnamePopup().open() if app.forbid_sixteens() is False and os.path.getsize(os.path.abspath('pipelinename.txt')) > 0 else Factory.DeselectDomainnamePopup().open()
+           # on_release: if app.check_jobfolder_sixteens() is True: Factory.ProjectnamePopup().open()
+        SixteensButton:
+            id: prosix
+            text: 'Configurate Analysis'
+            halign: 'center'
+            #pos_hint: {'center_x': .28, 'center_y': .65}
+            #size_hint: .14, .1
+            pos_hint: {'center_x': .2, 'center_y': .65}
+            size_hint: .3, .1
+            on_release: app.open_config_file()
+            on_release: Factory.ConfigurationPopup().open()
+        SixteensButton:
+            text: 'Analyze .qzv-File'
+            pos_hint: {'center_x': .2, 'center_y': .5}
+            size_hint: .3, .1
+            on_release: if app.check_jobfolder_sixteens() is True: Factory.ProjectnamePopupResult().open()
+        SixteensButton:
+            text: 'Goto Results'
+            pos_hint: {'center_x': .2, 'center_y': .35}
+            size_hint: .3, .1
+            on_release: root.manager.current = 'resultsixteens'
+
+        Label: # top
+            text: ''
+            pos_hint: {'right': .9, 'top': .8}
+            size_hint: .31, .002
+            canvas.before:
+                Color:
+                    rgba: hex('#B0171F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # bottom
+            text: ''
+            pos_hint: {'right': .9, 'top': .15}
+            size_hint: .312, .002 # needs to be slightly longer to close the rectangle
+            canvas.before:
+                Color:
+                    rgba: hex('#B0171F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # right
+            text: ''
+            pos_hint: {'right': .9, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#B0171F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # left
+            text: ''
+            pos_hint: {'right': .59, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#B0171F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: 'Projectname: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .8}
+            size_hint: None, None
+
+
+        Label:
+            #text: app.pipelinedisplay
+            text: app.pipelinename_popup.pipelinedisplay
+            pos_hint: {'right': .77, 'top': .75}
+            size_hint: None, None
+        Label:
+            text: 'Jobname: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .7}
+            size_hint: None, None
+        SixteensButton:
+            text: 'Choose Jobname'
+            #pos_hint: {'right': .82, 'top': .64} if app.manifestdisplay == '' else {'right': 0, 'top': 0}
+            pos_hint: {'right': .82, 'top': .64} if app.projectname_popup.projectdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ProjectnamePopup().open()
+        Label:
+            text: app.projectname_popup.projectdisplay
+            pos_hint: {'right': .77, 'top': .65}
+            size_hint: None, None
+        Label:
+            text: 'Manifest-File: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .6}
+            size_hint: None, None
+        SixteensButton:
+            text: 'Select Manifest-File'
+            pos_hint: {'right': .82, 'top': .54} if app.sixteensmanifestdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportManifestSixteens().open()
+        Label:
+            text: app.sixteensmanifestdisplay
+            pos_hint: {'right': .77, 'top': .55}
+            size_hint: None, None
+        Label:
+            text: 'Metadata-File: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .5}
+            size_hint: None, None
+        SixteensButton:
+            text: 'Select Metadata'
+            pos_hint: {'right': .82, 'top': .44} if app.sixteensmetadatadisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportMetadataSixteens().open()
+        Label:
+            text: app.sixteensmetadatadisplay
+            pos_hint: {'right': .77, 'top': .45}
+            size_hint: None, None
+        Label:
+            text: 'Fastq-Files: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .4}
+            size_hint: None, None
+        SixteensButton:
+            text: 'Select Fastq'
+            pos_hint: {'right': .82, 'top': .34} if app.sixteensfastqdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportFastqSixteens().open()
+        Label:
+            text: app.sixteensfastqdisplay
+            font_size: 20
+            pos_hint: {'right': .77, 'top': .34}
+            size_hint: None, None
+
+
+        SixteensButton:
+            pos_hint: {'right': .74, 'top': .25}
+            size_hint: .1, .07
+            text: 'Analyze'
+
+            #on_release: if app.check_display_sixteens() is True: app.whichrun_sixteens()
+            #on_release: app.whichrun_sixteens() if app.check_display_sixteens() is True else Factory.ParameterPopup().open()
+            #on_release: app.run_sixteens() if app.check_display_sixteens() is True else Factory.ParameterPopup().open()
+            on_release: if app.check_analysis_sixteens() is True: app.run_sixteens()
+            #on_release: if app.check_analysis_sixteens() is True: Factory.AnalysisPopup().open()
+        SixteensButton:
+            pos_hint: {'right': .86, 'top': .25}
+            size_hint: .1, .07
+            text: 'Reset'
+            on_release: app.reset_sixteens()
+
+
+
+
+
+
+<ResultSixteenS@Screen>:
+    name: 'resultsixteens'
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#292421')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 0.1, 'top': .999}
+            size_hint: .1, .999
+            canvas.before:
+                Color:
+                    rgba: hex('#1E1E1E')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        #Label:
+         #   text: ''
+          #  pos_hint: {'right': .9, 'top': .8}
+           # size_hint: .7, .7
+            #canvas.before:
+             #   #Color:
+              #   #   rgba: hex('#32CD32')
+               # Rectangle:
+                #    size: self.size
+                 #   pos: self.pos
+                  #  source: app.previewsource
+
+        SixteensButton:
+            text: 'png'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .8}
+            on_release: Factory.PngChooserPopup().open()
+            #on_release: app.pnglabel_demultiplex_summary_preview()
+        SixteensButton:
+            text: 'csv'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .7}
+            on_release: Factory.CsvChooserPopup().open()
+        SixteensButton:
+            text: 'html'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .6}
+            on_release: Factory.HtmlChooserPopup().open()
+        SixteensButton:
+            text: 'PDF'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1,.1
+            pos_hint: {'right': .1, 'top': .5}
+            #on_release: root.manager.current = 'pdfsixteens'
+            on_release: Factory.PdfChooserPopup().open()
+        SixteensButton:
+            text: 'tsv'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1,.1
+            pos_hint: {'right': .1, 'top': .4}
+            #on_release: root.manager.current = 'pdfsixteens'
+            on_release: Factory.TsvChooserPopup().open()
+        Button:
+            text: 'Downloads'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint:{'right':.1, 'top':.1}
+            on_release: Factory.ExportFiles().open()
+        SixteensButton:
+            text: 'Result Preview'
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            size_hint: .3, .1
+            on_release: app.open_html_preview_sixteens()
+
+     #   Button:
+      #      text: 'Cancel'
+       #     pos_hint: {'x': .7, 'y': .05}
+        #    size_hint: .2, .07
+         #   on_release: root.manager.current = 'landing'
+
+
+
+
+
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# BGCAmplicon Screens
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+<BGCAmplicon@Screen>:
+    id: bgcamplicon
+
+    name: 'bgc'
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: 'BGC domain Profiling \n MIBig'
+            font_size: 60
+            halign: 'center'
+            pos_hint: {'center_x': .5, 'center_y': .9}
+            size_hint: 0.85, .2
+
+        Button:
+            text: 'Cancel'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.manager.current = 'landing'
+
+        Label:
+            text: 'BGC domain Profiling \n MIBig'
+            font_size: 60
+            halign: 'center'
+            pos_hint: {'center_x': .5, 'center_y': .9}
+            size_hint: 0.85, .2
+
+     #   BGCButton:
+      #      id: probgc
+       #     text: 'New Project'
+        #    pos_hint: {'center_x': .12, 'center_y': .65}
+         #   size_hint: .14, .1
+          #  #on_release: Factory.ProjectnamePopup().open() if app.check_domainname() is True and app.domainname_domainname() is False else Factory.NoDomainnamePopup().open()
+           # on_release: if app.check_jobfolder_bgc() is True: Factory.ProjectnamePopup().open()
+       # BGCButton:
+        #    text: 'Import Data'
+         #   pos_hint: {'center_x': .2, 'center_y': .5}
+          #  size_hint: .3, .1
+           # on_release: if app.check_project() is True: Factory.ImportFiles().open()
+        BGCButton:
+            text: 'Goto Results'
+            #pos_hint: {'center_x': .2, 'center_y': .35}
+            pos_hint: {'center_x': .2, 'center_y': .5}
+            size_hint: .3, .1
+            on_release: root.manager.current = 'resultbgc' if app.forbid_sixteens() is True else Factory.NoDomainnamePopup().open()
+        #BGCSpinner:
+           # pos_hint: {'center_x': .28, 'center_y': .65}
+            #size_hint: .14, .1
+
+        Label: # top
+            text: ''
+            pos_hint: {'right': .9, 'top': .8}
+            size_hint: .31, .002
+            canvas.before:
+                Color:
+                    rgba: hex('#8B5A00')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # bottom
+            text: ''
+            pos_hint: {'right': .9, 'top': .15}
+            size_hint: .312, .002 # needs to be slightly longer to close the rectangle
+            canvas.before:
+                Color:
+                    rgba: hex('#8B5A00')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # right
+            text: ''
+            pos_hint: {'right': .9, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#8B5A00')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # left
+            text: ''
+            pos_hint: {'right': .59, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#8B5A00')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: 'Projectname: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .8}
+            size_hint: None, None
+
+
+        Label:
+            #text: app.pipelinedisplay
+            text: app.pipelinename_popup.pipelinedisplay
+            pos_hint: {'right': .77, 'top': .75}
+            size_hint: None, None
+        Label:
+            text: 'Jobname: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .7}
+            size_hint: None, None
+        BGCButton:
+            text: 'Choose Jobname'
+            #pos_hint: {'right': .82, 'top': .64} if app.sixteensmanifestdisplay == '' else {'right': 0, 'top': 0}
+            pos_hint: {'right': .82, 'top': .64} if app.projectname_popup.projectdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ProjectnamePopup().open()
+        Label:
+            text: app.projectname_popup.projectdisplay
+            pos_hint: {'right': .77, 'top': .65}
+            size_hint: None, None
+        Label:
+            text: 'Manifest-File: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .6}
+            size_hint: None, None
+        BGCButton:
+            text: 'Select Manifest-File'
+            pos_hint: {'right': .82, 'top': .54} if app.bgcmanifestdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportManifestBGC().open()
+        Label:
+            text: app.bgcmanifestdisplay
+            pos_hint: {'right': .77, 'top': .55}
+            size_hint: None, None
+        Label:
+            text: 'Domain Name: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .5}
+            size_hint: None, None
+        BGCSpinner:
+            pos_hint: {'right': .82, 'top': .44}
+            size_hint: .15, .05
+     #   Label:
+      #      text: app.sixteensmetadatadisplay
+       #     pos_hint: {'right': .77, 'top': .45}
+        #    size_hint: None, None
+        Label:
+            text: 'Fastq-Files: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .4}
+            size_hint: None, None
+        BGCButton:
+            text: 'Select Fastq'
+            pos_hint: {'right': .82, 'top': .34} if app.bgcfastqdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportFastqBGC().open()
+        Label:
+            text: app.bgcfastqdisplay
+            font_size: 20
+            pos_hint: {'right': .77, 'top': .34}
+            size_hint: None, None
+
+
+        BGCButton:
+            pos_hint: {'right': .74, 'top': .25}
+            size_hint: .1, .07
+            text: 'Analyze'
+            on_release: if app.check_analysis_bgc() is True: app.run_bgc()
+        BGCButton:
+            pos_hint: {'right': .86, 'top': .25}
+            size_hint: .1, .07
+            text: 'Reset'
+            on_release: app.reset_bgc()
+
+
+
+<ResultBGC@Screen>:
+    name: 'resultbgc'
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': .999}
+            size_hint: 1, .999
+            canvas.before:
+                Color:
+                    rgba: hex('#292421')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 0.1, 'top': .999}
+            size_hint: .1, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#1E1E1E')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+        Button:
+            text: 'tsv'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .8}
+            on_release: Factory.AmpTsvPopup().open() if app.domainname_amp() is True else app.do_nothing()
+            on_release: Factory.PksTsvPopup().open() if app.domainname_pks() is True else app.do_nothing()
+            on_release: Factory.T2ksTsvPopup().open() if app.domainname_t2ks() is True else app.do_nothing()
+
+        Button:
+            text: 'csv'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .7}
+            on_release: Factory.AmpCsvPopup().open() if app.domainname_amp() is True else app.do_nothing()
+            on_release: Factory.PksCsvPopup().open() if app.domainname_pks() is True else app.do_nothing()
+            on_release: Factory.T2ksCsvPopup().open() if app.domainname_t2ks() is True else app.do_nothing()
+        Button:
+            text: 'PDF'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1,.1
+            pos_hint: {'right': .1, 'top': .5}
+            on_release: Factory.AmpPdfPopup().open() if app.domainname_amp() is True else app.do_nothing()
+            on_release: Factory.PksPdfPopup().open() if app.domainname_pks() is True else app.do_nothing()
+            on_release: Factory.T2ksPdfPopup().open() if app.domainname_t2ks() is True else app.do_nothing()
+        Button:
+            text: 'Downloads'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint:{'right':.1, 'top':.1}
+            on_release: Factory.ExportFiles().open()
+
+        Button:
+            text: 'Cancel'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.manager.current = 'landing'
+
+
+
+
+
+
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# ShotgunMetagenome Screens
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+<ShotgunMetagenome@Screen>:
+
+    name: 'meta'
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        #Label:
+         #   text: 'WGS taxonomic/functional Profiling \n MEGAN'
+          #  font_size: 60
+           # halign: 'center'
+           # pos_hint: {'center_x': .5, 'center_y': .9}
+            #size_hint: 0.85, .2
+
+        #Button:
+         #   text: 'Cancel'
+          #  pos_hint: {'x': .7, 'y': .05}
+           # size_hint: .2, .07
+           # on_release: root.manager.current = 'landing'
+
+        Label:
+            text: '1. taxonomic and functional \n Profiling'
+            font_size: 60
+            halign: 'center'
+            pos_hint: {'center_x': .2, 'center_y': .9}
+            size_hint: 0.85, .2
+
+      #  ShotgunButton:
+       #     text: 'New Project'
+        #    pos_hint: {'center_x': .2, 'center_y': .65}
+         #   size_hint: .3, .1
+          #  #on_release: Factory.ProjectnamePopupShotgun().open() if app.forbid_sixteens() is False else Factory.DeselectDomainnamePopup().open()
+           # on_release: if app.check_jobfolder_shotguntax() is True: Factory.ProjectnamePopupShotgun().open()
+        #ShotgunButton:
+         #   text: 'Import Data'
+          #  pos_hint: {'center_x': .2, 'center_y': .5}
+           # size_hint: .3, .1
+            #on_release: if app.check_project() is True: Factory.ImportFilesShotgun().open()
+      #  ShotgunButton:
+       #     text: 'Download Results'
+        #    #pos_hint: {'center_x': .2, 'center_y': .35}
+         #   pos_hint: {'center_x': .2, 'center_y': .5}
+          #  size_hint: .3, .1
+           # on_release: if app.check_project() is True: Factory.ExportFilesShotgun().open()
+
+        Label: # top
+            text: ''
+            pos_hint: {'right': .35, 'top': .8}
+            size_hint: .31, .002
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # bottom
+            text: ''
+            pos_hint: {'right': .35, 'top': .15}
+            size_hint: .312, .002 # needs to be slightly longer to close the rectangle
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # right
+            text: ''
+            pos_hint: {'right': .35, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # left
+            text: ''
+            pos_hint: {'right': .04, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: 'Projectname: '
+            font_size: 40
+            pos_hint: {'right': .22, 'top': .8}
+            size_hint: None, None
+
+
+        Label:
+            #text: app.pipelinedisplay
+            text: app.pipelinename_popup.pipelinedisplay
+            pos_hint: {'right': .22, 'top': .75}
+            size_hint: None, None
+        Label:
+            text: 'Jobname: '
+            font_size: 40
+            pos_hint: {'right': .22, 'top': .7}
+            size_hint: None, None
+        ShotgunButton:
+            text: 'Choose Jobname'
+            #pos_hint: {'right': .82, 'top': .64} if app.manifestdisplay == '' else {'right': 0, 'top': 0}
+            pos_hint: {'right': .27, 'top': .64} if app.projectname_popup.projectdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ProjectnamePopup().open()
+        Label:
+            text: app.projectname_popup.projectdisplay
+            pos_hint: {'right': .22, 'top': .65}
+            size_hint: None, None
+        Label:
+            text: 'Manifest-File: '
+            font_size: 40
+            pos_hint: {'right': .22, 'top': .57}
+            size_hint: None, None
+        ShotgunButton:
+            text: 'Select Manifest-File'
+            pos_hint: {'right': .27, 'top': .51} if app.shotguntaxmanifestdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportManifestShotguntax().open()
+        Label:
+            text: app.shotguntaxmanifestdisplay
+            pos_hint: {'right': .22, 'top': .52}
+            size_hint: None, None
+        Label:
+            text: 'Fastq-Files: '
+            font_size: 40
+            pos_hint: {'right': .22, 'top': .43}
+            size_hint: None, None
+        ShotgunButton:
+            text: 'Select Fastq'
+            pos_hint: {'right': .27, 'top': .37} if app.shotguntaxfastqdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportFastqShotguntax().open()
+        Label:
+            text: app.shotguntaxfastqdisplay
+            font_size: 20
+            pos_hint: {'right': .22, 'top': .37}
+            size_hint: None, None
+
+
+        ShotgunButton:
+            pos_hint: {'right': .19, 'top': .25}
+            size_hint: .1, .07
+            text: 'Analyze'
+            on_release: if app.check_analysis_shotgun() is True: app.run_shotgun_taxonomy()
+        ShotgunButton:
+            pos_hint: {'right': .31, 'top': .25}
+            size_hint: .1, .07
+            text: 'Reset'
+            on_release: app.reset_shotguntax()
+
+        ShotgunButton:
+            text: 'Download Results'
+            pos_hint: {'center_x': .2, 'center_y': .08}
+            size_hint: .22, .07
+            on_release: if app.check_project() is True: Factory.ExportFilesShotgun().open()
+
+
+
+        Label:
+            text: '2. Shotgun Metagenome \n Domain Profiling'
+            font_size: 60
+            halign: 'center'
+            pos_hint: {'center_x': .8, 'center_y': .9}
+            size_hint: 0.85, .2
+    #    ShotgunButton:
+     #       id: probgc
+      #      text: 'New Project'
+       #     pos_hint: {'center_x': .72, 'center_y': .65}
+        #    size_hint: .14, .1
+         #   #on_release: Factory.ProjectnamePopup().open()
+          #  on_release: if app.check_jobfolder_shotgundom() is True: Factory.ProjectnamePopupShotgun().open()
+      #  ShotgunButton:
+       #     text: 'Import Data'
+        #    pos_hint: {'center_x': .8, 'center_y': .5}
+         #   size_hint: .3, .1
+          #  on_release: if app.check_project() is True: Factory.ImportFilesShotgun().open()
+       # ShotgunButton:
+        #    text: 'Goto Results'
+         #   pos_hint: {'center_x': .8, 'center_y': .35}
+          #  size_hint: .3, .1
+           # on_release: root.manager.current = 'resultshotgun'
+       # ShotgunSpinner:
+        #    pos_hint: {'center_x': .88, 'center_y': .65}
+         #   size_hint: .14, .1
+
+        Label: # top
+            text: ''
+            pos_hint: {'right': .95, 'top': .8}
+            size_hint: .31, .002
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # bottom
+            text: ''
+            pos_hint: {'right': .95, 'top': .15}
+            size_hint: .312, .002 # needs to be slightly longer to close the rectangle
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # right
+            text: ''
+            pos_hint: {'right': .95, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # left
+            text: ''
+            pos_hint: {'right': .64, 'top': .8}
+            size_hint: .002, .65
+            canvas.before:
+                Color:
+                    rgba: hex('#8E8E38')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: 'Projectname: '
+            font_size: 40
+            pos_hint: {'right': .82, 'top': .8}
+            size_hint: None, None
+
+
+        Label:
+            #text: app.pipelinedisplay
+            text: app.pipelinename_popup.pipelinedisplay
+            pos_hint: {'right': .82, 'top': .75}
+            size_hint: None, None
+        Label:
+            text: 'Jobname: '
+            font_size: 40
+            pos_hint: {'right': .82, 'top': .7}
+            size_hint: None, None
+        ShotgunButton:
+            text: 'Choose Jobname'
+            #pos_hint: {'right': .82, 'top': .64} if app.sixteensmanifestdisplay == '' else {'right': 0, 'top': 0}
+            pos_hint: {'right': .87, 'top': .64} if app.projectname_popup.projectdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ProjectnamePopup().open()
+        Label:
+            text: app.projectname_popup.projectdisplay
+            pos_hint: {'right': .82, 'top': .65}
+            size_hint: None, None
+        Label:
+            text: 'Manifest-File: '
+            font_size: 40
+            pos_hint: {'right': .82, 'top': .6}
+            size_hint: None, None
+        ShotgunButton:
+            text: 'Select Manifest-File'
+            pos_hint: {'right': .87, 'top': .54} if app.shotgundommanifestdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportManifestShotgundom().open()
+        Label:
+            text: app.shotgundommanifestdisplay
+            pos_hint: {'right': .82, 'top': .55}
+            size_hint: None, None
+        Label:
+            text: 'Domain Name: '
+            font_size: 40
+            pos_hint: {'right': .82, 'top': .5}
+            size_hint: None, None
+        ShotgunSpinner:
+            pos_hint: {'right': .87, 'top': .44}
+            size_hint: .15, .05
+        Label:
+            text: 'Fastq-Files: '
+            font_size: 40
+            pos_hint: {'right': .82, 'top': .4}
+            size_hint: None, None
+        ShotgunButton:
+            text: 'Select Fastq'
+            pos_hint: {'right': .87, 'top': .34} if app.shotgundomfastqdisplay == '' else {'right': 0, 'top': 0}
+            size_hint: .15, .05
+            on_release: Factory.ImportFastqShotgundom().open()
+        Label:
+            text: app.shotgundomfastqdisplay
+            font_size: 20
+            pos_hint: {'right': .82, 'top': .34}
+            size_hint: None, None
+
+
+        ShotgunButton:
+            pos_hint: {'right': .79, 'top': .25}
+            size_hint: .1, .07
+            text: 'Analyze'
+            on_release: if app.check_analysis_shotgun() is True: app.run_shotgun_domain()
+        ShotgunButton:
+            pos_hint: {'right': .91, 'top': .25}
+            size_hint: .1, .07
+            text: 'Reset'
+            on_release: app.reset_shotgundom()
+        ShotgunButton:
+            text: 'Goto Results'
+            pos_hint: {'center_x': .8, 'center_y': .08}
+            size_hint: .22, .07
+            on_release: root.manager.current = 'resultshotgun'
+
+
+
+     #   Button:
+      #      text: 'Cancel'
+       #     pos_hint: {'x': .7, 'y': .05}
+        #    size_hint: .2, .07
+         #   on_release: root.manager.current = 'landing'
+
+
+<ResultShotgun@Screen>:
+    name: 'resultshotgun'
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': .999}
+            size_hint: 1, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#292421')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 0.1, 'top': .999}
+            size_hint: .1, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#1E1E1E')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+        ShotgunButton:
+            text: 'tsv'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .8}
+            on_release: Factory.AmpTsvPopup().open()
+
+        ShotgunButton:
+            text: 'csv'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .7}
+            on_release: Factory.AmpCsvPopup().open()
+        ShotgunButton:
+            text: 'PDF'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1,.1
+            pos_hint: {'right': .1, 'top': .5}
+            on_release: Factory.AmpPdfPopup().open()
+        Button:
+            text: 'Downloads'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint:{'right':.1, 'top':.1}
+            on_release: Factory.ExportFiles().open()
+
+        Button:
+            text: 'Cancel'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.manager.current = 'landing'
+
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# BioPotenial Screens
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<BioPotential@Screen>:
+
+    name: 'bio'
+    FloatLayout:
+        FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: 'Biosynthesis Potential \n BiGScape'
+            font_size: 60
+            halign: 'center'
+            pos_hint: {'center_x': .5, 'center_y': .9}
+            size_hint: 0.85, .2
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Custom Pipeline Screens
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<CustomPipeline@Screen>:
+
+    name: 'custom'
+    FloatLayout:
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': .999}
+            size_hint: 1, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#292421')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: ''
+            pos_hint: {'right': 1, 'top': 1}
+            size_hint: 1, .001
+            canvas.before:
+                Color:
+                    rgba: hex('#EBE4E4')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: '16s based \n Community Profiling \n Qiime2'
+            font_size: 60
+            halign: 'center'
+            pos_hint: {'center_x': .5, 'center_y': .9}
+            size_hint: 0.85, .2
+
+        Button:
+            text: 'Cancel'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.manager.current = 'landing'
+        CustomButton:
+            text: 'Import Shell'
+            pos_hint: {'center_x': .2, 'center_y': .65}
+            size_hint: .3, .1
+            on_release: Factory.ImportShell().open()
+            #on_release: if app.check_jobfolder() is True: Factory.ProjectnamePopup().open()
+        CustomButton:
+            text: 'New Project'
+            pos_hint: {'center_x': .2, 'center_y': .5}
+            size_hint: .3, .1
+            #on_release: Factory.ProjectnamePopup().open() if app.forbid_sixteens() is False and os.path.getsize(os.path.abspath('pipelinename.txt')) > 0 else Factory.DeselectDomainnamePopup().open()
+            on_release: if app.check_jobfolder_sixteens() is True: Factory.ProjectnamePopup().open()
+        CustomButton:
+            text: 'Import Data'
+            pos_hint: {'center_x': .2, 'center_y': .35}
+            size_hint: .3, .1
+            on_release: if app.check_project() is True: Factory.ImportFiles().open()
+        #CustomButton:
+         #   text: 'Goto Results'
+          #  pos_hint: {'center_x': .2, 'center_y': .35}
+           # size_hint: .3, .1
+            #on_release:  if app.check_project() is True: root.manager.current = 'resultsixteens'
+            #on_release: root.manager.current = 'resultsixteens'
+
+        Label: # top
+            text: ''
+            pos_hint: {'right': .9, 'top': .8}
+            size_hint: .31, .002
+            canvas.before:
+                Color:
+                    rgba: hex('#556B2F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # bottom
+            text: ''
+            pos_hint: {'right': .9, 'top': .2}
+            size_hint: .312, .002 # needs to be slightly longer to close the rectangle
+            canvas.before:
+                Color:
+                    rgba: hex('#556B2F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # right
+            text: ''
+            pos_hint: {'right': .9, 'top': .8}
+            size_hint: .002, .6
+            canvas.before:
+                Color:
+                    rgba: hex('#556B2F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label: # left
+            text: ''
+            pos_hint: {'right': .59, 'top': .8}
+            size_hint: .002, .6
+            canvas.before:
+                Color:
+                    rgba: hex('#556B2F')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+        Label:
+            text: 'Chosen Shell: '
+            font_size: 40
+            pos_hint: {'right': .77, 'top': .8}
+            size_hint: None, None
+
+        Label:
+            text: app.customshell
+            pos_hint: {'right': .77, 'top': .75}
+            size_hint: None, None
+
+
+
+
+
+
+
+
+
+
+
+
+<Manager@Screen>:
+
+    name: 'manager'
+    FloatLayout:
+        Label:
+            pos_hint: {'right': 0.1, 'top': 1}
+            size_hint: .3, 1
+            canvas.before:
+                Color:
+                    rgba: hex('#1E1E1E')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Button:
+            text: 'Import \n /Export Data'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .8}
+            on_release: root.manager.current = 'menu'
+        Button:
+            text: 'Project \n Management'
+            halign: 'center'
+            font_size: 20
+            size_hint: .1, .1
+            pos_hint: {'right': .1, 'top': .7}
+            halign: "left"
+            valign: "center"
+            on_release: root.manager.current = 'manager'
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Project Management'
+        Label:
+            text: "Manage some Projects"
+
+
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# FILECHOOSERS
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<ImportFiles@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: True
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            on_selection: app.get_sixteenschooser(importchooser.selection)
+
+        Label:
+            text: ''
+            pos_hint: {'x': .05, 'y': .25}
+            size_hint: .4, .1
+            canvas.before:
+                Color:
+                    rgba: hex('#191970')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: "Manifest-file: "
+            pos_hint: {'x': .06, 'y': .25}
+            size_hint: .1, .1
+        Label:
+            #text: ''.join(map(str, importchooser.selection))
+            text: app.sixteensmanifestchooser
+            text_size: 700, None
+            shorten: False
+            pos_hint: {'x': .22, 'y': .25}
+            size_hint: .3, .1
+
+        Label:
+            text: ''
+            pos_hint: {'x': .55, 'y': .25}
+            size_hint: .4, .1
+            canvas.before:
+                Color:
+                    rgba: hex('#191970')
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            text: "Metadata-File: "
+            pos_hint: {'x': .56, 'y': .25}
+            size_hint: .1, .1
+        Label:
+            #text: ''.join(map(str, importchooser.selection))
+            text: app.metadatachooser
+            text_size: 700, None
+            shorten: False
+            pos_hint: {'x': .72, 'y': .25}
+            size_hint: .3, .1
+
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: app.get_sixteensdisplay()
+            #on_release: app.place_manifest(importchooser.selection)
+            on_release: root.dismiss()
+            #on_release: if app.try_filename(importchooser.selection) is True: app.whichrun(importchooser.selection)
+            #on_release: if app.try_filename(importchooser.selection) is False: Factory.NoFilePopup().open()
+            #on_release: Factory.AnalysisPopup().open()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+
+
+
+<ImportFilesShotgun@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Chosen File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Analyze'
+            background_color: hex('#CD2626') #firebrick
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.whichrun_shotgun(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is False: Factory.NoFilePopup().open()
+            #on_release: app.whichrun_shotgun(importchooser.selection)
+            #on_release: root.dismiss()
+            #on_release: Factory.AnalysisPopup().open()
+
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+        #Button:
+         #   text: 'Analyze Results'
+          #  background_color: hex('#CD2626') #firebrick3
+           # pos_hint: {'x': .1, 'y': .1}
+            #size_hint: .2, .07
+            #on_release: app.run_results(importchooser.selection)
+
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+        #Button:
+         #   text: 'Analyze Results'
+          #  background_color: hex('#CD2626') #firebrick3
+           # pos_hint: {'x': .1, 'y': .1}
+            #size_hint: .2, .07
+            #on_release: app.run_results(importchooser.selection)
+
+
+
+<ExportFiles@Popup>:
+    title: "Export Files"
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1200
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: exportchooser
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+
+        FloatLayout:
+            Label:
+                text: 'Save in: '
+                pos_hint: {'x': .3, 'y': .35}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, exportchooser.path))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .4, 'y': .35}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+        Button:
+            text: 'Download as .png'
+            pos_hint: {'x': .23, 'y': .15}
+            size_hint: .2, .07
+            on_release: app.move_png(exportchooser.path)
+            on_release: root.dismiss()
+
+        Button:
+            text: 'Download as .pdf'
+            pos_hint: {'x': .23, 'y': .05}
+            size_hint: .2, .07
+            on_release: app.move_pdf(exportchooser.path)
+            on_release: root.dismiss()
+
+        Button:
+            text: 'Download .qvc'
+            pos_hint: {'x': .53, 'y': .15}
+            size_hint: .2, .07
+            on_release: app.move_qzv(exportchooser.path)
+            on_release: root.dismiss()
+
+        Button:
+            text: 'Download Projectfolder'
+            pos_hint: {'x': .53, 'y': .05}
+            size_hint: .2, .07
+            on_release: app.move_project(exportchooser.path)
+            on_release: root.dismiss()
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .8, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+
+<ExportFilesShotgun@Popup>:
+    title: "Export Files"
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1200
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: exportchooser
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+        FloatLayout:
+            Label:
+                text: 'Save in: '
+                pos_hint: {'x': .3, 'y': .35}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, exportchooser.path))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .4, 'y': .35}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+        Button:
+            text: 'Select Directory'
+            pos_hint: {'center_x': .5, 'y': .15}
+            size_hint: .2, .07
+            on_release: app.move_project_shotgun(exportchooser.path)
+            on_release: root.dismiss()
+
+
+<ImportShell@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Shell-File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: app.get_shell(importchooser.selection)
+            on_release: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+
+<ImportManifestSixteens@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Manifest-File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_sixteensmanifest(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+<ImportMetadataSixteens@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Metadata-File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_sixteensmetadata(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+<ImportFastqSixteens@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: True
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Fastq-Files: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_sixteensfastq(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+<ImportResultsSixteens@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "qzv-File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Run'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: app.run_results(importchooser.selection)
+            on_release: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+
+<ImportManifestBGC@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Manifest-File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_bgcmanifest(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+
+<ImportFastqBGC@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: True
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Fastq-Files: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_bgcfastq(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+
+<ImportManifestShotguntax@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Manifest-File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_shotguntaxmanifest(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+<ImportFastqShotguntax@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: True
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Fastq-Files: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_shotguntaxfastq(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+
+
+<ImportManifestShotgundom@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: False
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Manifest-File: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_shotgundommanifest(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()
+
+<ImportFastqShotgundom@Popup>:
+   # name: 'importfiles'
+    title: "".join(map(str, importchooser.path))
+
+    auto_dismiss: False
+    size_hint: None, None
+    size: 1800,1000
+    pos_hint: {'center_x':.5, 'center_y': .5}
+    FloatLayout:
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: importchooser
+            #path: '/Users/mp/Documents'
+            path: app.path_importfiles()
+            multiselect: True
+            #size_hint: 1, .5
+            #pos_hint: {'y': .5}
+            size_hint: 1, .65
+            pos_hint: {'center_x':.5, 'center_y': .65}
+            #on_selection: app.selected(importchooser.selection) # independent of the task
+
+        FloatLayout:
+            Label:
+                text: "Fastq-Files: "
+                pos_hint: {'x': .25, 'y': .45}
+                size_hint: .1, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                text: ''.join(map(str, importchooser.selection))
+                text_size: 700, None
+                shorten: False
+                pos_hint: {'x': .35, 'y': .45}
+                size_hint: .4, .1
+                canvas.before:
+                    Color:
+                        rgba: hex('#191970')
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+        Button:
+            text: 'Choose'
+            background_color: hex('#CD2626') #firebrick3
+            pos_hint: {'x': .1, 'y': .05}
+            size_hint: .2, .07
+            on_release: if app.try_filename(importchooser.selection) is True: app.get_shotgundomfastq(importchooser.selection)
+            on_release: if app.try_filename(importchooser.selection) is True: root.dismiss()
+
+
+        Button:
+            text: 'Close'
+            pos_hint: {'x': .7, 'y': .05}
+            size_hint: .2, .07
+            on_release: root.dismiss()

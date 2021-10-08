@@ -1,0 +1,12 @@
+Please only change the numeric values, save the file when you are done and press 'Submit' in the Popup!
+
+
+
+--p-trim-left-f 0
+--p-trim-left-r 0
+--p-trunc-len-f 300
+--p-trunc-len-r 300
+--p-sampling-depth 1500
+--p-max-depth 4000
+
+
